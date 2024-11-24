@@ -20,6 +20,20 @@ import random
 import sys
 
 class Shuffler:
+
+    extensions = [  ".3gp",     ".aa",      ".aac",     ".aax",
+                    ".act",     ".aiff",    ".alac",    ".amr",
+                    ".ape",     ".au",      ".awb",     ".dss",
+                    ".dvf",     ".flac",    ".gsm",     ".iklax",
+                    ".ivs",     ".m4a",     ".m4b",     ".m4p",
+                    ".mmf",     ".movpkg",  ".mp3",     ".mpc",
+                    ".msv",     ".nmf",     ".ogg",     ".oga",
+                    ".mogg",    ".opus",    ".ra",      ".rm",
+                    ".raw",     ".rf64",    ".sln",     ".tta",
+                    ".voc",     ".vox",     ".wav",     ".wma",
+                    ".wv",      ".webm",    ".8svx",    ".cda"
+    ]
+
     def __init__(self, directory, verbose=False, dry_run=False):
         self.directory = directory
         if self.directory.endswith("/"):
@@ -41,9 +55,12 @@ class Shuffler:
 
         for dirpath, dirnames, filenames in os.walk(self.directory):
             for f in filenames:
-                file_list[counter] = f
-                counter +=1
+                name, extension = os.path.splitext(f)
+                if extension.lower() in Shuffler.extensions:
+                    file_list[counter] = f
+                    counter +=1
         
+
         # shuffle
         if self.verbose and self.dry_run:
             print("dry run selected. No files will be renamed")
@@ -75,7 +92,7 @@ class Shuffler:
                 else:
                     raise ValueError("file %s already exists. Bailing out" % tgt)
             index += 1
-            
+
         if self.verbose:
             print("%d files processed" % len(keys))
 
