@@ -45,7 +45,7 @@ class Shuffler:
         self.reprefix = "[0]+\d+%s"
         random.seed()
 
-    def shuffle(self):
+    def shuffle(self, clear=False):
 
         counter = 0
         file_list = {}
@@ -56,7 +56,7 @@ class Shuffler:
         for dirpath, dirnames, filenames in os.walk(self.directory):
             for f in filenames:
                 name, extension = os.path.splitext(f)
-                if extension.lower() in Shuffler.extensions:
+                if extension.lower() in Shuffler.extensions and not name.startswith('.'):
                     file_list[counter] = f
                     counter +=1
         
@@ -79,7 +79,10 @@ class Shuffler:
                 # found previous mark, so rename it clearing it before, 
                 # so the file name doesn't grow.
                 fname = re.sub(self.reprefix  % self.prefix,"",fname)
-                tgt = "%s/%010d%s%s" % (self.directory, index, self.prefix, fname)
+                if not clear:
+                    tgt = "%s/%010d%s%s" % (self.directory, index, self.prefix, fname)
+                else:
+                    tgt = "%s/%s" % (self.directory, fname)
 
             if self.verbose:
                 print("[R]: %s -> %s" % (source, tgt))
@@ -96,6 +99,16 @@ class Shuffler:
         if self.verbose:
             print("%d files processed" % len(keys))
 
+
+        
+
+        # clear
+        if self.verbose and self.dry_run:
+            print("dry run selected. No files will be renamed")
+
+
+        keys = list(file_list.items())
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--dry-run", 
@@ -106,8 +119,12 @@ if __name__ == "__main__":
                         help="Show data about file and processing", 
                         action="count", 
                         default=0)
+    parser.add_argument("-c", "--clear", 
+                        help="remove shuffe", 
+                        action="store_true", 
+                        default=False)
     parser.add_argument("input_directory", help="Directory to shuffle")
     args = parser.parse_args()
 
     shuffler = Shuffler(args.input_directory, args.verbose, args.dry_run)
-    shuffler.shuffle()
+    shuffler.shuffle(args.clear)
